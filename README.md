@@ -10,8 +10,8 @@ Corso di Laurea in Informatica - A.A.: 2023/2024
 
 | Nominativo           |
 | --------------------|
-| Edoardo Floriano     |
-| Marchiorato Pietro   |
+| Edoardo Florian      |
+| Pietro Marchiorato   |
 | Yuri Lovato          |
 | Eleonora Bilinski    |
 | Vullnet Vogli        |
