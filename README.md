@@ -1,4 +1,6 @@
-# Sviluppo 6Coders
+# PoC 6Coders
+
+Repository PoC - Revisione RTB
 
 Università degli Studi di Padova
 
