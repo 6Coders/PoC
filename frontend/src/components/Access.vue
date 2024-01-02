@@ -5,7 +5,7 @@
                 <h1 class="display-2">Benvenuto</h1>
                 <h2 class="text-body-secondary mb-5">Che tipo di utente sei?</h2>
                 <div>
-                    <button type="button" class="btn btn-primary custom-color btn-lg btn-block d-block mb-5" @click="redirectToManagerPage">Utente Gestore</button>
+                    <button type="button" class="btn btn-primary custom-color btn-lg btn-block d-block mb-5" @click="redirectToManagerPage">Utente gestore</button>
                     <button type="button" class="btn btn-primary custom-color btn-lg btn-block d-block" @click="redirectToUserPage">Utente base</button>
                 </div>
             </div>
