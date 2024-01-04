@@ -8,7 +8,7 @@
           <div class="input-group">
             <input id="fileInput" class="form-control" type="file" accept=".sql,.json" @change="handleFileUpload"
               arial-descridedby="fileInput" arial-label="Upload">
-            <button class="btn btn-outline-secondary" type="button">Upload</button>
+            <button class="btn btn-outline-secondary" type="button" @click="uploadFile">Upload</button>
           </div>
           <div v-if="!isAllowed" class="alert alert-danger d-flex align-items-center" role="alert">
               <span class="fas fa-times-circle mr-2"></span>
@@ -20,10 +20,12 @@
           </div>
           </div>
       </div>
+      <div v-if="isLoading">Caricamento in corso...</div>
     </form>
 </template>
 
 <script>
+import axios from '@/axios.js';
 export default {
   data() {
     return {
@@ -65,6 +67,36 @@ export default {
         return `${(size / 1073741824).toFixed(2)} GB`;
       }
     },
+
+    uploadFile() {
+      let formData = new FormData();
+      formData.append('file', this.file);
+      this.isLoading = true;
+      axios.post('/upload', formData)
+        .then(response => {
+          console.log(response)
+          this.loadFiles();
+          this.isLoading = false;
+        }).catch(error => {
+          console.log(error)
+        })
+
+    },
+
+    loadFiles() {
+      axios.get('/files').then(response => {
+        this.files = response.data.map(file => {
+          return {
+            ...file,
+            date: new Date(file.date).toLocaleString('it-IT'),
+            size: this.formatFileSize(file.size)
+          }
+        })
+      }).catch(error => {
+        console.log(error)
+      })
+    },
+    
   }
 };
 </script>
