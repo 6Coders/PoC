@@ -3,6 +3,7 @@ from flask_cors import CORS
 from flask import Flask, request, jsonify
 from werkzeug.utils import secure_filename
 import os
+import chatsql
 
 UPLOAD_FOLDER = os.path.abspath(os.path.dirname(__file__)) + '/uploads/'
 ALLOWED_EXTENSIONS = {'sql', 'json'}
