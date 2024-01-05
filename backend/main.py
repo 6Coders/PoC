@@ -31,5 +31,19 @@ def upload_file():
         return 'File successfully uploaded'
 
 
+@app.route('/file/<filename>', methods=['GET'])
+def get_file_info(filename):
+    try:
+        file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+        if os.path.exists(file_path):
+            chatsql.set_file_path(file_path)
+            chatsql.Init()
+            return jsonify({'message': f'File {filename} found', 'found': True, 'filename': filename})
+        else:
+            return jsonify({'message': f'File {filename} does not exist', 'found': False})
+    except Exception as e:
+        return jsonify({'message': str(e), 'found': False})
+
+
 if __name__ == '__main__':
     app.run()
