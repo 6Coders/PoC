@@ -6,7 +6,6 @@ from flask_cors import CORS
 from flask import Flask, request, jsonify
 from werkzeug.utils import secure_filename
 
-
 UPLOAD_FOLDER = os.path.abspath(os.path.dirname(__file__)) + '/uploads/'
 ALLOWED_EXTENSIONS = {'sql', 'json'}
 
@@ -53,6 +52,20 @@ def get_files():
             'loaded': loaded
         })
     return jsonify(files)
+
+@app.route('/file/<filename>', methods=['GET'])
+def get_file_info(filename):
+    try:
+        file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+        if os.path.exists(file_path):
+            chatsql.set_file_path(file_path)
+            chatsql.Init()
+            return jsonify({'message': f'File {filename} found', 'found': True, 'filename': filename})
+        else:
+            return jsonify({'message': f'File {filename} does not exist', 'found': False})
+    except Exception as e:
+        return jsonify({'message': str(e), 'found': False})
+
 
 if __name__ == '__main__':
     app.run()

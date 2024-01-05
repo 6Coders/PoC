@@ -5,6 +5,7 @@ import json
 class ChatSQL:
 
   #Attributi
+  path = None
   tc_embs = None
   schema = None
   tokenizer = None
@@ -12,6 +13,7 @@ class ChatSQL:
 
   def __init__(self, path):
     
+    self.path = path
     #Dizionario Dati
     with open(path, "r") as file:
         self.schema = json.load(file)
@@ -46,7 +48,7 @@ class ChatSQL:
     query_outputs = self.model(**query_inputs)
     query_embedding = query_outputs.pooler_output
 
-    # Calcolo similarità tramite cosine similarity, query e embeddings tab-col
+    # Calcolo similaritÃ  tramite cosine similarity, query e embeddings tab-col
     similarities = torch.nn.functional.cosine_similarity(
         query_embedding,
         torch.stack(list(self.tc_embs.values())),
@@ -98,3 +100,6 @@ class ChatSQL:
             resultstr = resultstr +"\nForeign Key: "+fk['foreign_key']+"\nAttribute: "+fk['attribute']+"\nReference Table: "+fk['reference_table']+"\nReference Attribute: "+fk['reference_attribute']+"\n"
     resultstr = resultstr+"\n"
     return resultstr
+
+  def get_path(self):
+    return self.path
