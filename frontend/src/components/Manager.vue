@@ -21,6 +21,46 @@
           </div>
       </div>
       <div v-if="isLoading">Caricamento in corso...</div>
+      <div class="row">
+        <div class="col-12">
+          <table class="table">
+            <thead class="thead-light">
+              <tr>
+                <th scope="col">#</th>
+                <th scope="col">File Name</th>
+                <th scope="col">File extension</th>
+                <th scope="col">Date</th>
+                <th scope="col">Size</th>
+                <th scope="col" colspan="2">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="(file, index) in files" :key="index" :class="{ 'table-success': file.loaded }">
+                <th scope="row">{{ index + 1 }}</th>
+                <td>
+                  {{ file.name }}
+                  <span v-if=file.loaded class="fas fa-check text-success ml-1"></span>
+                </td>
+                <td>{{ file.extension }}</td>
+                <td>{{ file.date }}</td>
+                <td>{{ file.size }}</td>
+                <td>
+                  <button type="button" class="btn btn-danger" @click="deleteFile(file.name + file.extension)">
+                    <span class="fas fa-trash-alt"></span> 
+                    Delete
+                  </button>
+                </td>
+                <td>
+                  <button type="button" class="btn btn-success" @click="loadSelectedFile(file)">
+                    <span class="fas fa-upload"></span>
+                    Load
+                  </button>  
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
     </form>
 </template>
 
@@ -67,7 +107,6 @@ export default {
         return `${(size / 1073741824).toFixed(2)} GB`;
       }
     },
-
     uploadFile() {
       let formData = new FormData();
       formData.append('file', this.file);
@@ -82,7 +121,6 @@ export default {
         })
 
     },
-
     loadFiles() {
       axios.get('/files').then(response => {
         this.files = response.data.map(file => {
@@ -96,7 +134,9 @@ export default {
         console.log(error)
       })
     },
-    
+  },
+  mounted() {
+    this.loadFiles();
   }
 };
 </script>
