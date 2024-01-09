@@ -1,67 +1,67 @@
 <template>
-    <form class="form-spacing">
-      <div class="row">
-        <div class="text-center mb-3">
-          <h1 class="display-4">Upload del dizionario dati</h1>
-        </div>
-        <div class="col-12">
-          <div class="input-group">
-            <input id="fileInput" class="form-control" type="file" accept=".sql,.json" @change="handleFileUpload"
-              arial-descridedby="fileInput" arial-label="Upload">
-            <button class="btn btn-outline-secondary" type="button" @click="uploadFile">Upload</button>
-          </div>
-          <div v-if="!isAllowed" class="alert alert-danger d-flex align-items-center" role="alert">
-              <span class="fas fa-times-circle mr-2"></span>
-              Per favore, seleziona un file .sql o .json
-          </div>
-          <div v-else class="alert alert-success d-flex align-items-center" role="alert">
-                <span class="fas fa-check-circle text-success"></span>
-                File pronto al caricamento
-          </div>
-          </div>
+  <form class="form-spacing">
+    <div class="row">
+      <div class="text-center mb-3">
+        <h1 class="display-4">Upload del dizionario dati</h1>
       </div>
-      <div v-if="isLoading">Caricamento in corso...</div>
-      <div class="row">
-        <div class="col-12">
-          <table class="table">
-            <thead class="thead-light">
-              <tr>
-                <th scope="col">#</th>
-                <th scope="col">File Name</th>
-                <th scope="col">File extension</th>
-                <th scope="col">Date</th>
-                <th scope="col">Size</th>
-                <th scope="col" colspan="2">Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr v-for="(file, index) in files" :key="index" :class="{ 'table-success': file.loaded }">
-                <th scope="row">{{ index + 1 }}</th>
-                <td>
-                  {{ file.name }}
-                  <span v-if=file.loaded class="fas fa-check text-success ml-1"></span>
-                </td>
-                <td>{{ file.extension }}</td>
-                <td>{{ file.date }}</td>
-                <td>{{ file.size }}</td>
-                <td>
-                  <button type="button" class="btn btn-danger" @click="deleteFile(file.name + file.extension)">
-                    <span class="fas fa-trash-alt"></span> 
-                    Delete
-                  </button>
-                </td>
-                <td>
-                  <button type="button" class="btn btn-success" @click="loadSelectedFile(file)">
-                    <span class="fas fa-upload"></span>
-                    Load
-                  </button>  
-                </td>
-              </tr>
-            </tbody>
-          </table>
+      <div class="col-12">
+        <div class="input-group">
+          <input id="fileInput" class="form-control" type="file" accept=".sql,.json" @change="handleFileUpload"
+            arial-descridedby="fileInput" arial-label="Upload">
+          <button class="btn btn-outline-secondary" type="button" @click="uploadFile">Upload</button>
+        </div>
+        <div v-if="!isAllowed" class="alert alert-danger d-flex align-items-center" role="alert">
+          <span class="fas fa-times-circle mr-2"></span>
+          Per favore, seleziona un file .sql o .json
+        </div>
+        <div v-else class="alert alert-success d-flex align-items-center" role="alert">
+          <span class="fas fa-check-circle text-success"></span>
+          File pronto al caricamento
         </div>
       </div>
-    </form>
+    </div>
+    <div v-if="isLoading">Caricamento in corso...</div>
+    <div class="row">
+      <div class="col-12">
+        <table class="table">
+          <thead class="thead-light">
+            <tr>
+              <th scope="col">#</th>
+              <th scope="col">File Name</th>
+              <th scope="col">File extension</th>
+              <th scope="col">Date</th>
+              <th scope="col">Size</th>
+              <th scope="col" colspan="2">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="(file, index) in files" :key="index" :class="{ 'table-success': file.loaded }">
+              <th scope="row">{{ index + 1 }}</th>
+              <td>
+                {{ file.name }}
+                <span v-if=file.loaded class="fas fa-check text-success ml-1"></span>
+              </td>
+              <td>{{ file.extension }}</td>
+              <td>{{ file.date }}</td>
+              <td>{{ file.size }}</td>
+              <td>
+                <button type="button" class="btn btn-danger" @click="deleteFile(file.name + file.extension)">
+                  <span class="fas fa-trash-alt"></span>
+                  Delete
+                </button>
+              </td>
+              <td>
+                <button type="button" class="btn btn-success" @click="loadSelectedFile(file)">
+                  <span class="fas fa-upload"></span>
+                  Load
+                </button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </form>
 </template>
 
 <script>
@@ -88,7 +88,7 @@ export default {
       const extension = this.file.name.split('.').pop();
       console.log('File extension: ', extension);
 
-      if(validExtensions.includes(extension)) {
+      if (validExtensions.includes(extension)) {
         this.isAllowed = true;
         console.log('File uploaded: ', this.file);
       } else {
@@ -136,12 +136,46 @@ export default {
     },
     deleteFile(filename) {
       axios.delete(`/delete/${filename}`).then(response => {
-          console.log(response)
-          this.loadFiles();
-        }).catch(error => {
+        console.log(response)
+        this.loadFiles();
+      }).catch(error => {
+        console.log(error)
+      })
+    },
+    loadSelectedFile(file) {
+      // Trova il file attualmente contrassegnato come "loaded" e lo imposta su "false"
+      const previouslyLoadedFile = this.files.find(f => f.loaded);
+      if (previouslyLoadedFile) {
+        previouslyLoadedFile.loaded = false;
+      }
+
+      // Effettua il caricamento del nuovo file selezionato
+      axios.get(`/file/${file.name + file.extension}`)
+        .then(response => {
+          if (response.data.found) {
+            // Il file è stato trovato
+            console.log(response.data.message);
+            this.files = this.files.map(f => {
+              if (f.name === file.name && f.extension === file.extension) {
+                f.loaded = true; // Imposta il valore "loaded" del file corrente su true
+              }
+              return f;
+            });
+          } else {
+            // Il file non è stato trovato
+            console.log(response.data.message);
+            this.files = this.files.map(f => {
+              if (f.name === file.name && f.extension === file.extension) {
+                f.loaded = false; // Imposta il valore "loaded" del file corrente su false
+              }
+              return f;
+            });
+          }
+        })
+        .catch(error => {
           console.log(error)
         })
-      },
+    },
   },
   mounted() {
     this.loadFiles();
