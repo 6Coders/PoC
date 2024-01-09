@@ -1,6 +1,6 @@
 import os
 import time
-from chatsql import ChatSQL
+import chatsql
 from flask import Flask, jsonify
 from flask_cors import CORS
 from flask import Flask, request, jsonify
@@ -15,11 +15,9 @@ app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 app.config.from_object(__name__)
 
 # enable CORS
-CORS(app, resources={'/*': {'origins': '*'}})
+CORS(app, resources={r'/*': {'origins': '*'}})
 
-current_file = None
-chatSql = None
-
+            
 @app.route('/upload', methods=['POST'])
 def upload_file():
     if not os.path.exists(UPLOAD_FOLDER):
@@ -45,6 +43,7 @@ def get_files():
         date = time.ctime(mtime)
         name, extension = os.path.splitext(filename)
         loaded = False #non ancora possibile applicare la logica di caricamento 
+        print(loaded)
         files.append({
             'name': name,
             'extension': extension,
@@ -56,30 +55,29 @@ def get_files():
 
 @app.route('/file/<filename>', methods=['GET'])
 def get_file_info(filename):
-    global current_file
-    global chatSql
-
     try:
-        current_file = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-        if os.path.exists(current_file):
-        
-            if (chatSql is not None):
-                del chatSql
-            
-            chatSql = ChatSQL(current_file)
-                    
+        file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+        if os.path.exists(file_path):
+            chatsql.set_file_path(file_path)
+            chatsql.Init()
             return jsonify({'message': f'File {filename} found', 'found': True, 'filename': filename})
         else:
             return jsonify({'message': f'File {filename} does not exist', 'found': False})
     except Exception as e:
         return jsonify({'message': str(e), 'found': False})
 
-@app.route('/getloadedfile', methods=['GET'])
-def getloadedfile():
+@app.route('/delete/<filename>', methods=['DELETE'])
+def delete_file(filename):
     try:
-        return jsonify({'filepath': current_file}, success=True)
+        file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+        try:
+            os.remove(file_path)
+            return jsonify({'message': 'File Deleted'})
+        except OSError as er:
+            err_message = "Error: "+er.filename+" - "+er.strerror
+            return jsonify({'message': err_message})
     except Exception as e:
-        return jsonify({'message': str(e), 'found': False})
+        return jsonify({'message': str(e)})
 
 
 if __name__ == '__main__':
