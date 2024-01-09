@@ -134,6 +134,14 @@ export default {
         console.log(error)
       })
     },
+    deleteFile(filename) {
+      axios.delete(`/delete/${filename}`).then(response => {
+          console.log(response)
+          this.loadFiles();
+        }).catch(error => {
+          console.log(error)
+        })
+      },
   },
   mounted() {
     this.loadFiles();
