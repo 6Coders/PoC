@@ -134,6 +134,40 @@ export default {
         console.log(error)
       })
     },
+    loadSelectedFile(file) {
+      // Trova il file attualmente contrassegnato come "loaded" e lo imposta su "false"
+      const previouslyLoadedFile = this.files.find(f => f.loaded);
+      if (previouslyLoadedFile) {
+        previouslyLoadedFile.loaded = false;
+      }
+
+      // Effettua il caricamento del nuovo file selezionato
+      axios.get(`/file/${file.name + file.extension}`)
+        .then(response => {
+          if (response.data.found) {
+            // Il file è stato trovato
+            console.log(response.data.message);
+            this.files = this.files.map(f => {
+              if (f.name === file.name && f.extension === file.extension) {
+                f.loaded = true; // Imposta il valore "loaded" del file corrente su true
+              }
+              return f;
+            });
+          } else {
+            // Il file non è stato trovato
+            console.log(response.data.message);
+            this.files = this.files.map(f => {
+              if (f.name === file.name && f.extension === file.extension) {
+                f.loaded = false; // Imposta il valore "loaded" del file corrente su false
+              }
+              return f;
+            });
+          }
+        })
+        .catch(error => {
+          console.log(error)
+        })
+    },
     deleteFile(filename) {
       axios.delete(`/delete/${filename}`).then(response => {
           console.log(response)
