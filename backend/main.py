@@ -66,6 +66,19 @@ def get_file_info(filename):
     except Exception as e:
         return jsonify({'message': str(e), 'found': False})
 
+@app.route('/delete/<filename>', methods=['DELETE'])
+def delete_file(filename):
+    try:
+        file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+        try:
+            os.remove(file_path)
+            return jsonify({'message': 'File Deleted'})
+        except OSError as er:
+            err_message = "Error: "+er.filename+" - "+er.strerror
+            return jsonify({'message': err_message})
+    except Exception as e:
+        return jsonify({'message': str(e)})
+
 
 if __name__ == '__main__':
     app.run()
