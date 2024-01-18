@@ -1,6 +1,7 @@
 import os
 import time
-import chatsql 
+from chatsql import ChatSQL
+from flask import Flask, jsonify
 from flask_cors import CORS
 from flask import Flask, request, jsonify
 from werkzeug.utils import secure_filename
@@ -16,9 +17,8 @@ app.config.from_object(__name__)
 # enable CORS
 CORS(app, resources={r'/*': {'origins': '*'}})
 
-def allowed_file(filename):
-    return '.' in filename and \
-            filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+current_file = None
+chatSql = None
             
 @app.route('/upload', methods=['POST'])
 def upload_file():
@@ -44,8 +44,7 @@ def get_files():
         mtime = os.path.getmtime(path)
         date = time.ctime(mtime)
         name, extension = os.path.splitext(filename)
-        loaded = chatsql.verify_file_name(filename)
-        print(loaded)
+        loaded = path == current_file
         files.append({
             'name': name,
             'extension': extension,
@@ -57,11 +56,18 @@ def get_files():
 
 @app.route('/file/<filename>', methods=['GET'])
 def get_file_info(filename):
+    global current_file
+    global chatSql
+
     try:
-        file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-        if os.path.exists(file_path):
-            chatsql.set_file_path(file_path)
-            chatsql.Init()
+        current_file = os.path.join(app.config['UPLOAD_FOLDER'], filename)
+        if os.path.exists(current_file):
+        
+            if (chatSql is not None):
+                del chatSql
+            
+            chatSql = ChatSQL(current_file)
+                    
             return jsonify({'message': f'File {filename} found', 'found': True, 'filename': filename})
         else:
             return jsonify({'message': f'File {filename} does not exist', 'found': False})
@@ -80,11 +86,12 @@ def get_file_loaded():
 def delete_file(filename):
     try:
         file_path = os.path.join(app.config['UPLOAD_FOLDER'], filename)
-        if os.path.exists(file_path):
+        try:
             os.remove(file_path)
-            return jsonify({'message': 'File successfully deleted'})
-        else:
-            return jsonify({'message': 'File does not exist'})
+            return jsonify({'message': 'File Deleted'})
+        except OSError as er:
+            err_message = "Error: "+er.filename+" - "+er.strerror
+            return jsonify({'message': err_message})
     except Exception as e:
         return jsonify({'message': str(e)})
 
