@@ -77,11 +77,12 @@ def get_file_info(filename):
 @app.route('/getfileloaded', methods=['GET'])
 def get_file_loaded():
     try:
-        print(chatsql.get_file_name())
-        return jsonify({'loaded': chatsql.get_file_name()})
+        loaded_file_name = os.path.basename(chatSql.get_path())
+        print(loaded_file_name)
+        return jsonify({'loaded': loaded_file_name})
     except Exception as e:
         return jsonify({'message': str(e)})
-    
+        
 @app.route('/delete/<filename>', methods=['DELETE'])
 def delete_file(filename):
     try:
