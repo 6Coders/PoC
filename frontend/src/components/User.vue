@@ -9,7 +9,7 @@
           <input  type="text" class="form-control" id="inputPrompt">
         </div>
         <div class="mb-3">
-          <label class="form-label">File caricato: nome del db</label>
+          <label for="loadedFile" class="form-label">File caricato: {{ loadedFile }}</label>
         </div>
         <button type="submit"  class="btn btn-primary">Genera Prompt</button>
         <div class="mt-5">
@@ -22,11 +22,33 @@
     </template>
     
     <script>
+    import axios from '@/axios.js';
     export default {
+  data() {
+    return {
+      userRequest: '' ,
+      generatedPrompt: '',
+      loadedFile: ''
+    };
+  },
       methods: {
+        loadFile(){
+      axios.get('/getfileloaded')
+        .then(response => {
+          this.loadedFile = response.data.loaded;
+          console.log(response.data);
+        })
+        .catch(error => {
+          // Gestisci eventuali errori
+          console.error(error);
+        });
+    },
         redirectToAccessPage() {
           this.$router.push({ name: 'home' });
         }
-      }
+      },
+  mounted() {
+    this.loadFile();
+  }
     };
     </script>
