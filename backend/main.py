@@ -82,7 +82,22 @@ def get_file_loaded():
         return jsonify({'loaded': loaded_file_name})
     except Exception as e:
         return jsonify({'message': str(e)})
-        
+
+@app.route('/generateprompt', methods=['POST'])
+def generate_prompt():
+    try:
+        user_request = request.json.get('userRequest') 
+        print("user request : " + user_request)
+        chatSql = ChatSQL(current_file)
+        result = chatSql.request_processing(user_request)
+        print("result : " + result)
+
+        return jsonify({'result': result})
+
+    except Exception as e:
+        return jsonify({'message': str(e)})
+            
+
 @app.route('/delete/<filename>', methods=['DELETE'])
 def delete_file(filename):
     try:
